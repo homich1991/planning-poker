@@ -2,8 +2,9 @@
 
 This is the project to maintain planning poker scrum ritual with the team and also to play with RSocket
 
-##For proper work
+Inspired by https://github.com/rsocket/bomberman-workshop
 
+##For proper work
 
 * Install link:https://docs.docker.com/get-docker/[Docker]
 * Install flatbuffers 1.12
