@@ -1,0 +1,27 @@
+namespace com.homich.data;
+
+table ScoreCount {
+  score: string;
+  count: int;
+}
+
+table PlayerScore {
+  id: string;
+  name: string;
+  role: string;
+  score: string;
+}
+
+table PlayerScoreByRoles {
+  role: string;
+  averageScore: string;
+  players: [PlayerScore];
+  scoreCount: [ScoreCount];
+}
+
+table Game {
+  playersByRoles: [PlayerScoreByRoles];
+  showScores: bool;
+}
+
+root_type Game;

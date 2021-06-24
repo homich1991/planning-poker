@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>planning-poker</artifactId>
+        <groupId>com.homich</groupId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>fbs</artifactId>
+
+    <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <fbs.sources>${basedir}/src/main/resources/fbs</fbs.sources>
+        <fbs.generated.sources>${project.build.directory}/java</fbs.generated.sources>
+        <fbs.generated.sources.js>${basedir}/../ui/src/generated/sources/flatbuffers/js/main</fbs.generated.sources.js>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.google.flatbuffers</groupId>
+            <artifactId>flatbuffers-java</artifactId>
+            <version>2.0.0</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <executions>
+                    <execution>
+                        <id>java-fbs</id>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <executable>flatc</executable>
+                            <workingDirectory>${fbs.sources}</workingDirectory>
+                            <arguments>
+                                <argument>--java</argument>
+                                <argument>--gen-mutable</argument>
+                                <argument>-o</argument>
+                                <argument>${fbs.generated.sources}</argument>
+                                <argument>Game.fbs</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>js-fbs</id>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <executable>flatc</executable>
+                            <workingDirectory>${fbs.sources}</workingDirectory>
+                            <arguments>
+                                <argument>--ts</argument>
+                                <argument>--gen-mutable</argument>
+                                <argument>-o</argument>
+                                <argument>${fbs.generated.sources.js}</argument>
+                                <argument>Game.fbs</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${fbs.generated.sources}</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

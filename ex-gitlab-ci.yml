@@ -1,0 +1,31 @@
+image: artifactory.epam.com:6229/bellsoft/liberica-openjdk-alpine:12
+
+cache:
+  paths:
+    - .mvn/wrapper
+    - ui/node_modules
+
+before_script:
+  - apk update
+  - apk search --no-cache flatbuffers
+  - apk add --no-cache flatbuffers
+
+Build project:
+  stage: build
+  script:
+    - ./mvnw install
+  artifacts:
+    paths:
+      - docker/jars/*.jar
+    expire_in: 1 week
+
+Test code:
+  stage: test
+  script:
+    - ./mvnw test
+  artifacts:
+    paths:
+      - server/target/surefire-reports/TEST-*.xml
+    expire_in: 1 week
+    reports:
+      junit: server/target/surefire-reports/TEST-*.xml

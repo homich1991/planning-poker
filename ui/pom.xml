@@ -1,0 +1,161 @@
+<!--
+  ~ Copyright © 2021 EPAM Systems, Inc. All Rights Reserved. All information contained herein is, and remains the
+  ~ property of EPAM Systems, Inc. and/or its suppliers and is protected by international intellectual
+  ~ property law. Dissemination of this information or reproduction of this material is strictly forbidden,
+  ~ unless prior written permission is obtained from EPAM Systems, Inc
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.homich</groupId>
+        <artifactId>planning-poker</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>ui</artifactId>
+    <packaging>jar</packaging>
+
+    <name>ui</name>
+    <description>Single Page Application Module</description>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <destDir>${project.build.outputDirectory}/${project.artifactId}/planning-poker</destDir>
+        <node.embedded>false</node.embedded>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.homich</groupId>
+            <artifactId>fbs</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>${project.basedir}</directory>
+                            <includes>
+                                <include>build/</include>
+                            </includes>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>${maven-antrun-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>create-build</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${node.embedded}</skip>
+                            <target>
+                                <condition property="yarn.executable" value="yarn.cmd" else="yarn">
+                                    <os family="windows"/>
+                                </condition>
+
+                                <echo>Running '${yarn.executable} install'</echo>
+                                <exec executable="${yarn.executable}" searchpath="true" dir="${pom.basedir}"
+                                      failonerror="true" failifexecutionfails="true">
+                                    <arg value="install"/>
+                                </exec>
+
+                                <echo>Running '${yarn.executable} build'</echo>
+                                <exec executable="${yarn.executable}" searchpath="true" dir="${pom.basedir}"
+                                      failonerror="true" failifexecutionfails="true">
+                                    <arg value="build"/>
+                                </exec>
+                            </target>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-build</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <echo>Copy WebJar resources</echo>
+                                <copy todir="${destDir}">
+                                    <fileset dir="${project.basedir}/build">
+                                        <include name="**/*.*"/>
+                                    </fileset>
+                                </copy>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    <profiles>
+        <profile>
+            <id>embedded-node</id>
+            <properties>
+                <node.embedded>true</node.embedded>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.github.eirslett</groupId>
+                        <artifactId>frontend-maven-plugin</artifactId>
+                        <version>1.6</version>
+                        <configuration>
+                            <workingDirectory>${project.basedir}</workingDirectory>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>install node and yarn</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>install-node-and-yarn</goal>
+                                </goals>
+                                <configuration>
+                                    <nodeVersion>v14.16.1</nodeVersion>
+                                    <yarnVersion>v1.22.10</yarnVersion>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>yarn install</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>yarn</goal>
+                                </goals>
+                                <configuration>
+                                    <arguments>install</arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>yarn build</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>yarn</goal>
+                                </goals>
+                                <configuration>
+                                    <arguments>run build</arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>
